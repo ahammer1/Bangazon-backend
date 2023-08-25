@@ -4,6 +4,7 @@
     {
         public static int Processing { get; internal set; }
         public static int Completed { get; internal set; }
+        public static int Pending { get; internal set; }
         public int OrderStatusId { get; set; }
         public string Name { get; set; }
 
