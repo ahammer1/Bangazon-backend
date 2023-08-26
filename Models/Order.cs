@@ -11,5 +11,7 @@ namespace BangAzon.Models
         public int OrderStatus { get; set; }
         public int OrderStatusId { get; set;}
         public string PaymentType { get; set; }
+
+        public List<Product> Products { get; set; }
     }
 }

@@ -38,4 +38,19 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.MapGet("/api/users", (BangazonDbContext db) =>
+{
+    return db.User.ToList();
+});
+
+app.MapGet("/api/product", (BangazonDbContext db) =>
+{
+    return db.Products.ToList();
+});
+
+app.MapGet("/api/orders", (BangazonDbContext db) =>
+{
+    return db.Orders.ToList();
+});
+
 app.Run();
