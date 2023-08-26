@@ -11,6 +11,7 @@ namespace BangAzon
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductType> ProductTypes { get; set; }
         public DbSet<User> User { get; set; }
+        public DbSet<OrderProduct> OrderProducts { get; set; }
 
         public BangazonDbContext(DbContextOptions<BangazonDbContext> context) : base(context)
         {
@@ -50,6 +51,12 @@ namespace BangAzon
             new PaymentType { PaymentTypeId = 4, Type = "AfterPay"}
             });
 
+            modelBuilder.Entity<OrderProduct>().HasData(new OrderProduct[]
+            {
+                new OrderProduct {OrderProductId = 1001, ProductId = 1, OrderId = 123},
+                new OrderProduct {OrderProductId = 1002, ProductId = 3, OrderId = 124},
+                new OrderProduct {OrderProductId = 1003, ProductId = 6, OrderId = 125},
+            });
 
             modelBuilder.Entity<Order>().HasData(new Order[]
             {
@@ -65,7 +72,6 @@ namespace BangAzon
             new OrderStatus {  OrderStatusId = 3, Name = "Pending" },
             });
 
-;
         }
     }
 }
