@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Http.Json;
 using BangAzon;
+using BangAzon.Models;
+using Microsoft.AspNetCore.Mvc;
+using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,10 +45,63 @@ app.MapGet("/api/users", (BangazonDbContext db) =>
     return db.User.ToList();
 });
 
+app.MapPost("/api/users", (BangazonDbContext db, User user) =>
+{
+    db.User.Add(user);
+    return Results.Created($"api/users/{user.UserId}", user);
+});
+
+app.MapGet("/api/users/{userId}", (int userId, BangazonDbContext db) =>
+{
+    User user = db.User.FirstOrDefault(u => u.UserId == userId);
+    if (user == null)
+    {
+        return Results.NotFound();
+    }
+    return Results.Ok(user);
+});
+
+app.MapDelete("/api/users/{userId}", (int userId, BangazonDbContext db) =>
+{
+    User user = db.User.FirstOrDefault(u => u.UserId == userId);
+
+    if (user == null)
+    {
+        return Results.NotFound();
+    }
+
+    db.User.Remove(user);
+    db.SaveChanges();
+
+    return Results.Ok(user);
+});
+
+app.MapPut("/api/users/{userId}", async (int userId, [FromBody] User updatedUser, BangazonDbContext db) =>
+{
+    User existingUser = db.User.FirstOrDefault(u => u.UserId == userId);
+
+    if (existingUser == null)
+    {
+        return Results.NotFound();
+    }
+
+    existingUser.UserName = updatedUser.UserName;
+    existingUser.Email = updatedUser.Email;
+    existingUser.Password = updatedUser.Password;
+    existingUser.isSeller = updatedUser.isSeller;
+
+    await db.SaveChangesAsync();
+
+    return Results.Ok(existingUser);
+});
+
+
+
 app.MapGet("/api/product", (BangazonDbContext db) =>
 {
     return db.Products.ToList();
 });
+
 
 app.MapGet("/api/orders", (BangazonDbContext db) =>
 {
