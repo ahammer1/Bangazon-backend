@@ -96,10 +96,41 @@ app.MapPut("/api/users/{userId}", async (int userId, [FromBody] User updatedUser
 });
 
 
-
 app.MapGet("/api/product", (BangazonDbContext db) =>
 {
     return db.Products.ToList();
+});
+app.MapPost("/api/products", (BangazonDbContext db, Product product) =>
+{
+    db.Products.Add(product);
+    db.SaveChanges();
+
+    return Results.Created($"/api/products/{product.ProductId}", product);
+});
+
+app.MapGet("/api/products/{productId}", (int productId, BangazonDbContext db) =>
+{
+    Product product = db.Products.FirstOrDefault(p => p.ProductId == productId);
+    if (product == null)
+    {
+        return Results.NotFound();
+    }
+    return Results.Ok(product);
+});
+
+app.MapDelete("/api/products/{productId}", (int productId, BangazonDbContext db) =>
+{
+    Product product = db.Products.FirstOrDefault(p => p.ProductId == productId);
+
+    if (product == null)
+    {
+        return Results.NotFound();
+    }
+
+    db.Products.Remove(product);
+    db.SaveChanges();
+
+    return Results.Ok(product);
 });
 
 
