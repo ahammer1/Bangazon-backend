@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Http.Json;
 using BangAzon;
+using BangAzon.Models;
+using Microsoft.AspNetCore.Mvc;
+using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -94,21 +96,6 @@ app.MapPut("/api/users/{userId}", async (int userId, [FromBody] User updatedUser
 });
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 app.MapGet("/api/product", (BangazonDbContext db) =>
 {
     return db.Products.ToList();
@@ -145,6 +132,7 @@ app.MapDelete("/api/products/{productId}", (int productId, BangazonDbContext db)
 
     return Results.Ok(product);
 });
+
 
 app.MapGet("/api/orders", (BangazonDbContext db) =>
 {
