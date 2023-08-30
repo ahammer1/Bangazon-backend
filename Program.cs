@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using BangAzon;
 using BangAzon.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -101,6 +102,7 @@ app.MapGet("/api/product", (BangazonDbContext db) =>
 {
     return db.Products.ToList();
 });
+
 app.MapPost("/api/products", (BangazonDbContext db, Product product) =>
 {
     db.Products.Add(product);
@@ -137,106 +139,169 @@ app.MapPut("/api/products/{productId}", async (int productId, [FromBody] Product
 {
     Product existingProduct = db.Products.FirstOrDefault(p => p.ProductId == productId);
 
+    if (existingProduct == null)
+    {
+        return Results.NotFound();
+    }
+
+    existingProduct.Name = updatedProduct.Name;
+    existingProduct.Description = updatedProduct.Description;
+    existingProduct.Price = updatedProduct.Price;
+    existingProduct.StockQuantity = updatedProduct.StockQuantity;
+
+    db.SaveChanges();
+
+    return Results.Ok(existingProduct);
+});
 
 app.MapGet("/api/orders", (BangazonDbContext db) =>
+    {
+        return db.Orders.ToList();
+    });
+
+    app.MapGet("/api/orders/{orderId}", (int orderId, BangazonDbContext db) =>
+    {
+        var order = db.Orders.Include(o => o.Products).FirstOrDefault(o => o.OrderId == orderId);
+
+        if (order == null)
+        {
+            return Results.NotFound();
+        }
+
+        return Results.Ok(order);
+    });
+
+    app.MapPost("/api/orders", (Order order, BangazonDbContext db) =>
+    {
+        db.Orders.Add(order);
+        db.SaveChanges();
+
+        return Results.Created($"/api/orders/{order.OrderId}", order);
+    });
+
+
+    app.MapDelete("/api/orders/{orderId}/products/{productId}", (int orderId, int productId, BangazonDbContext db) =>
+    {
+        var order = db.Orders.Include(o => o.Products).FirstOrDefault(o => o.OrderId == orderId);
+        if (order == null)
+        {
+            return Results.NotFound();
+        }
+        var productToRemove = order.Products.FirstOrDefault(p => p.ProductId == productId);
+        if (productToRemove == null)
+        {
+            return Results.NotFound();
+        }
+        order.Products.Remove(productToRemove);
+        db.SaveChanges();
+        return Results.NoContent();
+    });
+
+    app.MapPost("/api/orders/{orderId}/products/{productId}", (int orderId, int productId, BangazonDbContext db) =>
+    {
+        var order = db.Orders.Include(o => o.Products).FirstOrDefault(o => o.OrderId == orderId);
+
+        if (order == null)
+        {
+            return Results.NotFound();
+        }
+
+        var productToAdd = db.Products.FirstOrDefault(p => p.ProductId == productId);
+
+        if (productToAdd == null)
+        {
+            return Results.NotFound();
+        }
+
+        order.Products.Add(productToAdd);
+        db.SaveChanges();
+
+        return Results.NoContent();
+    });
+
+    app.MapDelete("/api/orders/{orderId}", (int orderId, BangazonDbContext db) =>
+    {
+        var order = db.Orders.Find(orderId);
+
+        if (order == null)
+        {
+            return Results.NotFound();
+        }
+
+        db.Orders.Remove(order);
+        db.SaveChanges();
+
+        return Results.NoContent();
+    });
+
+app.MapGet("/api/paymenttypes", (BangazonDbContext db) =>
 {
-    return db.Orders.ToList();
+    var paymentTypes = db.PaymentType.ToList();
+    return Results.Ok(paymentTypes);
 });
 
-app.MapGet("/api/orders/{orderId}", (int orderId, BangazonDbContext db) =>
-{
-    var order = db.Orders.Include(o => o.Products).FirstOrDefault(o => o.OrderId == orderId);
-
-    if (order == null)
-    {
-        return Results.NotFound();
-    }
-
-    return Results.Ok(order);
-});
-
-app.MapPost("/api/orders", (Order order, BangazonDbContext db) =>
-{
-    db.Orders.Add(order);
-    db.SaveChanges();
-
-    return Results.Created($"/api/orders/{order.OrderId}", order);
-});
-
-
-app.MapDelete("/api/orders/{orderId}/products/{productId}", (int orderId, int productId, BangazonDbContext db) =>
-{
-    var order = db.Orders.Include(o => o.Products).FirstOrDefault(o => o.OrderId == orderId);
-    if (order == null)
-    {
-        return Results.NotFound();
-    }
-    var productToRemove = order.Products.FirstOrDefault(p => p.ProductId == productId);
-    if (productToRemove == null)
-    {
-        return Results.NotFound();
-    }
-    order.Products.Remove(productToRemove);
-    db.SaveChanges();
-    return Results.NoContent();
-});
-
-app.MapPost("/api/orders/{orderId}/products/{productId}", (int orderId, int productId, BangazonDbContext db) =>
-{
-    var order =  db.Orders.Include(o => o.Products).FirstOrDefault(o => o.OrderId == orderId);
-
-    if (order == null)
-    {
-        return Results.NotFound();
-    }
-
-    var productToAdd = db.Products.FirstOrDefault(p => p.ProductId == productId);
-
-    if (productToAdd == null)
-    {
-        return Results.NotFound();
-    }
-
-    order.Products.Add(productToAdd);
-    db.SaveChanges();
-
-    return Results.NoContent();
-});
-
-app.MapDelete("/api/orders/{orderId}", (int orderId, BangazonDbContext db) =>
-{
-    var order = db.Orders.Find(orderId);
-
-    if (order == null)
-    {
-        return Results.NotFound();
-    }
-
-    db.Orders.Remove(order);
-    db.SaveChanges();
-
-    return Results.NoContent();
-});
 
 app.MapGet("/api/paymenttypes/{paymentTypeId}", (int paymentTypeId, BangazonDbContext db) =>
-{
-    var paymentType = db.PaymentType.Find(paymentTypeId);
-
-    if (paymentType == null)
     {
-        return Results.NotFound();
-    }
+        var paymentType = db.PaymentType.Find(paymentTypeId);
 
-    return Results.Ok(paymentType);
-});
+        if (paymentType == null)
+        {
+            return Results.NotFound();
+        }
 
-app.MapPost("/api/paymenttypes", (PaymentType paymentType, BangazonDbContext db) =>
-{
-    db.PaymentType.Add(paymentType);
-    db.SaveChangesAsync();
+        return Results.Ok(paymentType);
+    });
 
-    return Results.Created($"/api/paymenttypes/{paymentType.PaymentTypeId}", paymentType);
-});
+    app.MapPost("/api/paymenttypes", (PaymentType paymentType, BangazonDbContext db) =>
+    {
+        db.PaymentType.Add(paymentType);
+        db.SaveChangesAsync();
+
+        return Results.Created($"/api/paymenttypes/{paymentType.PaymentTypeId}", paymentType);
+    });
+
+    app.MapGet("/api/producttypes", (BangazonDbContext db) =>
+    {
+        var productTypes = db.ProductTypes.ToList();
+        return Results.Ok(productTypes);
+    });
 
 
-app.Run();
+    app.MapGet("/api/producttypes/{productTypeId}", (int productTypeId, BangazonDbContext db) =>
+    {
+        var productType = db.ProductTypes.Find(productTypeId);
+
+        if (productType == null)
+        {
+            return Results.NotFound();
+        }
+
+        return Results.Ok(productType);
+    });
+
+    app.MapDelete("/api/producttypes/{productTypeId}", (int productTypeId, BangazonDbContext db) =>
+    {
+        var productType = db.ProductTypes.Find(productTypeId);
+
+        if (productType == null)
+        {
+            return Results.NotFound();
+        }
+
+        db.ProductTypes.Remove(productType);
+        db.SaveChangesAsync();
+
+        return Results.NoContent();
+    });
+
+    app.MapPost("/api/producttypes", (ProductType productType, BangazonDbContext db) =>
+    {
+        db.ProductTypes.Add(productType);
+        db.SaveChanges();
+
+        return Results.Created($"/api/producttypes/{productType.ProductTypeId}", productType);
+    });
+
+    app.Run();
+
