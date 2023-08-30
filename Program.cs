@@ -2,7 +2,6 @@ using System.Text.Json.Serialization;
 using BangAzon;
 using BangAzon.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -98,7 +97,6 @@ app.MapPut("/api/user/{userId}", async (int userId, [FromBody] User updatedUser,
 });
 
 
-
 app.MapGet("/api/product", (BangazonDbContext db) =>
 {
     return db.Products.ToList();
@@ -138,21 +136,6 @@ app.MapDelete("/api/products/{productId}", (int productId, BangazonDbContext db)
 app.MapPut("/api/products/{productId}", async (int productId, [FromBody] Product updatedProduct, BangazonDbContext db) =>
 {
     Product existingProduct = db.Products.FirstOrDefault(p => p.ProductId == productId);
-
-    if (existingProduct == null)
-    {
-        return Results.NotFound();
-    }
-
-    existingProduct.Name = updatedProduct.Name;
-    existingProduct.Description = updatedProduct.Description;
-    existingProduct.Price = updatedProduct.Price;
-    existingProduct.StockQuantity = updatedProduct.StockQuantity;
-
-    db.SaveChanges();
-
-    return Results.Ok(existingProduct);
-});
 
 
 app.MapGet("/api/orders", (BangazonDbContext db) =>
