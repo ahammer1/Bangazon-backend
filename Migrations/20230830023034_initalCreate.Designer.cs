@@ -3,6 +3,7 @@ using System;
 using BangAzon;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BangAzon.Migrations
 {
     [DbContext(typeof(BangazonDbContext))]
-    partial class BangazonDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230830023034_initalCreate")]
+    partial class initalCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,31 +59,31 @@ namespace BangAzon.Migrations
                         new
                         {
                             OrderId = 123,
-                            CreatedDate = new DateTime(2023, 8, 26, 18, 33, 53, 551, DateTimeKind.Local).AddTicks(5453),
+                            CreatedDate = new DateTime(2023, 8, 24, 21, 30, 34, 382, DateTimeKind.Local).AddTicks(3581),
                             OrderStatus = 0,
                             OrderStatusId = 1,
                             PaymentType = "credit Card",
-                            UpdatedDate = new DateTime(2023, 8, 31, 18, 33, 53, 551, DateTimeKind.Local).AddTicks(5499),
+                            UpdatedDate = new DateTime(2023, 8, 29, 21, 30, 34, 382, DateTimeKind.Local).AddTicks(3618),
                             UserId = 1
                         },
                         new
                         {
                             OrderId = 124,
-                            CreatedDate = new DateTime(2023, 8, 18, 18, 33, 53, 551, DateTimeKind.Local).AddTicks(5505),
+                            CreatedDate = new DateTime(2023, 8, 16, 21, 30, 34, 382, DateTimeKind.Local).AddTicks(3626),
                             OrderStatus = 0,
                             OrderStatusId = 2,
                             PaymentType = "Afterpay",
-                            UpdatedDate = new DateTime(2023, 8, 28, 18, 33, 53, 551, DateTimeKind.Local).AddTicks(5508),
+                            UpdatedDate = new DateTime(2023, 8, 26, 21, 30, 34, 382, DateTimeKind.Local).AddTicks(3627),
                             UserId = 2
                         },
                         new
                         {
                             OrderId = 125,
-                            CreatedDate = new DateTime(2023, 8, 29, 18, 33, 53, 551, DateTimeKind.Local).AddTicks(5513),
+                            CreatedDate = new DateTime(2023, 8, 27, 21, 30, 34, 382, DateTimeKind.Local).AddTicks(3630),
                             OrderStatus = 0,
                             OrderStatusId = 3,
                             PaymentType = "GiftCard",
-                            UpdatedDate = new DateTime(2023, 8, 31, 18, 33, 53, 551, DateTimeKind.Local).AddTicks(5516),
+                            UpdatedDate = new DateTime(2023, 8, 29, 21, 30, 34, 382, DateTimeKind.Local).AddTicks(3632),
                             UserId = 3
                         });
                 });

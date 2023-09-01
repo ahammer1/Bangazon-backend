@@ -22,7 +22,7 @@ namespace BangAzon
 
             modelBuilder.Entity<User>().HasData(new User[]
             {
-            new User { UserId = 1, UserName = "Bob", Email = "bobiscool@gmail.com", Password = "mommashouse33", isSeller=false },
+            new User { UserId = 1, UserName = "Bob", Email = "bobiscool@gmail.com", Password = "mommashouse33", isSeller=false, uid = "yca0FmJzbHXwh0rUvsoQSjYWREv1" },
             });
 
             modelBuilder.Entity<Product>().HasData(new Product[]
