@@ -7,6 +7,7 @@
         public string Email { get; set; }
         public string Password { get; set; }
        public bool isSeller { get; set; }
+        public string uid { get; set; }
 
     }
 }

@@ -7,6 +7,18 @@ using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000",
+                                "http://localhost:7042")
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+        });
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -28,6 +40,7 @@ builder.Services.Configure<JsonOptions>(options =>
 });
 var app = builder.Build();
 
+app.UseCors();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -45,6 +58,19 @@ app.MapGet("/api/user", (BangazonDbContext db) =>
 {
     return db.User.ToList();
 });
+
+app.MapGet("/api/checkuser/{uid}", (string uid, BangazonDbContext db) =>
+{
+    var userExists = db.User.FirstOrDefault(u => u.uid == uid);
+
+    if (userExists == null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(userExists);
+});
+
 
 app.MapPost("/api/user", (BangazonDbContext db, User user) =>
 {
